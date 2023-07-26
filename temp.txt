@@ -1,0 +1,343 @@
+Warning 1 of 29:
+
+  in module Main
+  at src/Main.purs:33:87 - 33:88 (line 33, column 87 - line 33, column 88)
+
+    Name x was introduced but not used.
+
+  in value declaration flattenPath
+
+  See https://github.com/purescript/documentation/blob/master/errors/UnusedName.md for more information,
+  or to contribute content related to this warning.
+
+Warning 2 of 29:
+
+  in module Main
+  at src/Main.purs:37:14 - 37:15 (line 37, column 14 - line 37, column 15)
+
+    Name i was introduced but not used.
+
+  in value declaration logEx
+
+  See https://github.com/purescript/documentation/blob/master/errors/UnusedName.md for more information,
+  or to contribute content related to this warning.
+
+Warning 3 of 29:
+
+  in module Main
+  at src/Main.purs:38:17 - 38:18 (line 38, column 17 - line 38, column 18)
+
+    Name t was introduced but not used.
+
+  in value declaration logEx
+
+  See https://github.com/purescript/documentation/blob/master/errors/UnusedName.md for more information,
+  or to contribute content related to this warning.
+
+Warning 4 of 29:
+
+  in module Main
+  at src/Main.purs:53:46 - 53:47 (line 53, column 46 - line 53, column 47)
+
+    Name x was introduced but not used.
+
+  in value declaration logEx
+
+  See https://github.com/purescript/documentation/blob/master/errors/UnusedName.md for more information,
+  or to contribute content related to this warning.
+
+Warning 5 of 29:
+
+  in module Main
+  at src/Main.purs:51:74 - 51:75 (line 51, column 74 - line 51, column 75)
+
+    Name e was shadowed.
+
+  in value declaration logEx
+
+  See https://github.com/purescript/documentation/blob/master/errors/ShadowedName.md for more information,
+  or to contribute content related to this warning.
+
+Warning 6 of 29:
+
+  in module Main
+  at src/Main.purs:36:9 - 74:53 (line 36, column 9 - line 74, column 53)
+
+    A case expression contains unreachable cases:
+
+    (ExprDo _)
+
+  in binding group logLetBinding, logGuarded, logEx, logDo
+
+  See https://github.com/purescript/documentation/blob/master/errors/OverlappingPattern.md for more information,
+  or to contribute content related to this warning.
+
+Warning 7 of 29:
+
+  in module Main
+  at src/Main.purs:4:1 - 4:35 (line 4, column 1 - line 4, column 35)
+
+    The import of type SemigroupMap from module Data.Map includes data constructors but only the type is used
+    It could be replaced with:
+
+      import Data.Map (SemigroupMap)
+
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/UnusedDctorImport.md for more information,
+  or to contribute content related to this warning.
+
+Warning 8 of 29:
+
+  in module Main
+  at src/Main.purs:5:1 - 5:23 (line 5, column 1 - line 5, column 23)
+
+    The qualified import of Data.Map as Map is redundant
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/UnusedImport.md for more information,
+  or to contribute content related to this warning.
+
+Warning 9 of 29:
+
+  in module Main
+  at src/Main.purs:7:1 - 7:23 (line 7, column 1 - line 7, column 23)
+
+    The qualified import of Data.Set as Set is redundant
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/UnusedImport.md for more information,
+  or to contribute content related to this warning.
+
+Warning 10 of 29:
+
+  in module Main
+  at src/Main.purs:19:1 - 19:28 (line 19, column 1 - line 19, column 28)
+
+    The import of Effect.Console is redundant
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/UnusedImport.md for more information,
+  or to contribute content related to this warning.
+
+Warning 11 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    The import of module PureScript.CST.Types contains the following unused references:
+
+      RecordLabeled
+
+    It could be replaced with:
+
+      import PureScript.CST.Types (AppSpine(AppTerm, AppType), Binder(..), Declaration(..), DoStatement(DoError, DoBind, DoDiscard, DoLet), Expr(..), Guarded(Guarded, Unconditional), Label, LetBinding(LetBindingError, LetBindingPattern, LetBindingName, LetBindingSignature), Name(Name), QualifiedName(QualifiedName), Separated(Separated), Where(Where), Wrapped(Wrapped))
+
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/UnusedExplicitImport.md for more information,
+  or to contribute content related to this warning.
+
+Warning 12 of 29:
+
+  in module Main
+  at src/Main.purs:11:1 - 11:55 (line 11, column 1 - line 11, column 55)
+
+    Import list contains multiple references to type Maybe
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 13 of 29:
+
+  in module Main
+  at src/Main.purs:11:1 - 11:55 (line 11, column 1 - line 11, column 55)
+
+    Import list contains multiple references to type Maybe
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 14 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type AppSpine
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 15 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type Binder
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 16 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type Declaration
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 17 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type DoStatement
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 18 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type DoStatement
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 19 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type DoStatement
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 20 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type DoStatement
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 21 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type Expr
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 22 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type Guarded
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 23 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type Guarded
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 24 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type LetBinding
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 25 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type LetBinding
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 26 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type LetBinding
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 27 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type LetBinding
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 28 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type RecordLabeled
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+Warning 29 of 29:
+
+  in module Main
+  at src/Main.purs:20:1 - 20:585 (line 20, column 1 - line 20, column 585)
+
+    Import list contains multiple references to type Separated
+
+
+  See https://github.com/purescript/documentation/blob/master/errors/DuplicateImportRef.md for more information,
+  or to contribute content related to this warning.
+
+
+ decl val "main"
+   bind var "a"
+ decl val "getInt"
+   bind wild card ""

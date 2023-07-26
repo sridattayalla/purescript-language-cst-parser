@@ -31,6 +31,9 @@
   , "typelevel-prelude"
   , "unfoldable"
   , "unsafe-coerce"
+    , "node-fs-aff"
+    , "aff"
+    , "node-buffer"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/Main.purs" ]
