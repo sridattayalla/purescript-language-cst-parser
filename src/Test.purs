@@ -36,3 +36,7 @@ fn x =
     in x
 
 defTuple = Tuple 1 (Tuple 2 3)
+
+l = gn {t: 10, y : 11}
+
+gn x = x.t
