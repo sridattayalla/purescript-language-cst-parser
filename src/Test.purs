@@ -40,3 +40,7 @@ defTuple = Tuple 1 (Tuple 2 3)
 l = gn {t: 10, y : 11}
 
 gn x = x.t
+
+data SampleType = Works | NotWorking String
+
+instance showSampleType :: Show SampleType where show _ = ""

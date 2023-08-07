@@ -16,13 +16,15 @@ import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff (readFile, readdir)
 import Effect.Aff (Aff, launchAff_)
-import PureScript.CST.Types (AppSpine(AppType), AppSpine(AppTerm), Binder, Binder(..), Declaration, Declaration(..), DoStatement, DoStatement(DoLet), DoStatement(DoDiscard), DoStatement(DoBind), DoStatement(DoError), Expr, Expr(..), Guarded, Guarded(Unconditional), Guarded(Guarded), Ident, Label, Labeled(Labeled), LetBinding, LetBinding(LetBindingSignature), LetBinding(LetBindingPattern), LetBinding(LetBindingName), LetBinding(LetBindingError), Module, Name(Name), QualifiedName(QualifiedName), RecordLabeled(RecordPun), RecordLabeled(RecordField), Separated, Separated(Separated), Where(Where), Wrapped(Wrapped))
+import PureScript.CST.Types (AppSpine(AppType), AppSpine(AppTerm), Binder, Binder(..), Declaration, Declaration(..), DoStatement, DoStatement(DoLet), DoStatement(DoDiscard), DoStatement(DoBind), DoStatement(DoError), Expr, Expr(..), Guarded, Guarded(Unconditional), Guarded(Guarded), Ident, Ident(Ident), Instance, Instance(Instance), InstanceBinding, InstanceBinding(InstanceBindingName), Label, Labeled(Labeled), LetBinding, LetBinding(LetBindingSignature), LetBinding(LetBindingPattern), LetBinding(LetBindingName), LetBinding(LetBindingError), Module, Name(Name), Proper(Proper), QualifiedName(QualifiedName), RecordLabeled(RecordPun), RecordLabeled(RecordField), Separated, Separated(Separated), Token(TokUnderscore), Where(Where), Wrapped(Wrapped))
 import Data.Newtype (unwrap)
-import Data.Array.NonEmpty (any, concat, filter, fromArray, toArray)
 import Data.Array.NonEmpty.Internal (NonEmptyArray)
 import Data.Array as Arr
 import Data.String.CodeUnits (contains)
 import Data.String.Pattern (Pattern(..))
+import Control.Category (identity)
+import Data.NonEmpty (singleton)
+import Data.Array.NonEmpty (any, findMap, snoc)
 
 type QualifiedIdent = Tuple (Maybe CST.ModuleName) CST.Ident
 type UsageMap = SemigroupMap QualifiedIdent (Set CST.SourceRange)
@@ -88,10 +90,95 @@ getExprIdents x = case x of
                                 <$> arr)
     _ -> x
 
+rewriteInstanceBinding :: forall e. InstanceBinding e -> InstanceBinding e
+rewriteInstanceBinding  ib =
+    let _ = case ib of
+               InstanceBindingName {name} -> logthis $ unwrap (unwrap name).name
+               _ -> unit
+    in ib
+
+underscore = BinderWildcard {range : {start : {line : 0, column: 0}, end: {line : 0, column: 1}}, leadingComments: [], trailingComments: [], value : TokUnderscore }
+
+partialDecodeSourceToken = {range : {start : {line : 0, column: 0}, end: {line : 0, column: 13}}, leadingComments: [], trailingComments: [], value: TokUnderscore}
+
+partialDecodeIdent = ExprIdent $ QualifiedName {token : partialDecodeSourceToken
+                                 , module : Nothing
+                                 , name : Ident "partialDecode"}
+
+attachPartialDecodeInstance :: forall e. NonEmptyArray (InstanceBinding e) -> NonEmptyArray (InstanceBinding e)
+attachPartialDecodeInstance arr = v
+    where
+        v | hasPartialDecode arr = arr
+--          | hasWrapDecode arr = arr <> wrapDecode
+--          | hasConstructorDecode arr = arr <> constructorDecode
+          | true = partialDecode
+        partialDecode =
+            let
+                val = findMap (case _ of
+                        InstanceBindingName {name, binders, guarded} -> if unwrap (unwrap name).name == "hyperDecode"
+                                                        then Just $ InstanceBindingName { name : Name $ (unwrap name) {name = Ident "partialDecode", token = partialDecodeSourceToken}
+                                                                                        , binders : [underscore]
+                                                                                        , guarded : case guarded of
+                                                                                                        Unconditional st (Where {expr, bindings}) -> Unconditional st (Where {expr : partialDecodeIdent, bindings : Nothing})
+                                                                                                        x -> x
+                                                                                        }
+                                                        else Nothing
+                        _ -> Nothing
+                     ) arr
+            in case val of
+                 Nothing -> arr
+                 Just x -> snoc arr x
+
+        hasPartialDecode arr =
+            any (case _ of
+                    InstanceBindingName {name} -> unwrap (unwrap name).name == "partialDecode"
+                    _ -> false
+                 ) arr
+        hasWrapDecode arr =
+            any (case _ of
+                    InstanceBindingName {guarded} ->
+                        case guarded of
+                            Unconditional st (Where {expr}) ->
+                                case expr of
+                                    ExprIdent (QualifiedName {name}) -> unwrap name == "wrapDecode"
+                                    _ -> false
+                            _ -> false
+                    _ -> false
+                 ) arr
+        hasConstructorDecode arr =
+            any (case _ of
+                    InstanceBindingName {guarded} ->
+                        case guarded of
+                            Unconditional st (Where {expr}) ->
+                                case expr of
+                                    ExprApp expr _ -> case expr of
+                                                        ExprIdent (QualifiedName {name}) -> unwrap name == "constructorDecode"
+                                                        _ -> false
+                                    _ -> false
+                            _ -> false
+                    _ -> false
+                 ) arr
+
+
+rewriteInstance :: forall e. Instance e -> Instance e
+rewriteInstance i@(Instance {head, body}) =
+    if unwrap (unwrap head.className).name == "HyperDecode"
+        then Instance
+                { head
+                , body : body <#> (\(Tuple st arr) -> Tuple st (attachPartialDecodeInstance arr))}
+        else i
+
+getDecls :: forall e. Declaration e -> Declaration e
+getDecls d =
+    case d of
+       DeclInstanceChain (Separated{head, tail}) ->
+            DeclInstanceChain $ Separated {head : rewriteInstance head, tail : (\(Tuple st a) -> Tuple st $ rewriteInstance a) <$> tail}
+       _ -> d
+
 doThings ::  forall a. CST.Module a -> CST.Module a
 doThings  = rewriteModuleTopDown $ defaultVisitor
-  {
-    onExpr = getExprIdents
+  { onExpr = identity
+  , onDecl = getDecls
   }
 
 getAllScreenFiles :: String -> Aff (Array String)
@@ -109,8 +196,7 @@ printUsage paths =
           contents <- liftEffect <<< Buffer.toString UTF8 =<< readFile path
           case parseModule contents of
             ParseSucceeded x -> do
---                            let _ = logthis $ printModule $ removeUnused x
-                            let _ = doThings x
+                            let _ = logthis $ printModule $ doThings x
                             pure unit
             _                -> pure unit
           case Arr.tail paths of
@@ -122,8 +208,10 @@ printUsage paths =
 main :: Effect Unit
 main = launchAff_ do
 --    contents <- liftEffect <<< Buffer.toString UTF8 =<< readFile "./src/Test.purs"
-    files' <- getAllScreenFiles "/home/sridatta/code_here/hyper-widget/src/"
-    let files = Arr.filter (not <<< eq "/home/sridatta/code_here/hyper-widget/src/UI/View/PaymentPage/ViewUtils.purs") files'
+--    files' <- getAllScreenFiles "/home/sridatta/code_here/hyper-widget/src/"
+    files' <- getAllScreenFiles "/home/sridatta/code_here/hyper-decoder/test/"
+--    let files = Arr.filter (not <<< eq "/home/sridatta/code_here/hyper-widget/src/UI/View/PaymentPage/ViewUtils.purs") files'
+    let files = Arr.filter (eq "/home/sridatta/code_here/hyper-decoder/test/Types.purs") files'
 
     printUsage files
     pure unit

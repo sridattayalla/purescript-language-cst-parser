@@ -1,8 +1,10 @@
 { name = "language-cst-parser"
 , license = "MIT"
-, repository = "https://github.com/natefaubion/purescript-language-cst-parser.git"
+, repository =
+    "https://github.com/natefaubion/purescript-language-cst-parser.git"
 , dependencies =
-  [ "arrays"
+  [ "aff"
+  , "arrays"
   , "console"
   , "const"
   , "control"
@@ -19,7 +21,10 @@
   , "lists"
   , "maybe"
   , "newtype"
+  , "node-buffer"
+  , "node-fs-aff"
   , "node-process"
+  , "nonempty"
   , "numbers"
   , "ordered-collections"
   , "partial"
@@ -31,9 +36,6 @@
   , "typelevel-prelude"
   , "unfoldable"
   , "unsafe-coerce"
-    , "node-fs-aff"
-    , "aff"
-    , "node-buffer"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/Main.purs" ]
