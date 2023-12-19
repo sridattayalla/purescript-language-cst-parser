@@ -11,29 +11,30 @@ import PureScript.CST.Types as CST
 import Data.Maybe (Maybe, Maybe(Nothing), Maybe(Just), isJust)
 import Effect (Effect)
 import Effect.Class (liftEffect)
-import PureScript.CST (RecoveredParserResult(..), parseModule, printModule)
+import PureScript.CST (RecoveredParserResult(..), parseExpr, parseModule, printModule)
 import Node.Buffer as Buffer
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff (readFile, readdir)
 import Effect.Aff (Aff, launchAff_)
-import PureScript.CST.Types (AppSpine(AppType), AppSpine(AppTerm), Binder, Binder(..), Declaration, Declaration(..), DoStatement, DoStatement(DoLet), DoStatement(DoDiscard), DoStatement(DoBind), DoStatement(DoError), Expr, Expr(..), Guarded, Guarded(Unconditional), Guarded(Guarded), Ident, Ident(Ident), Instance, Instance(Instance), InstanceBinding, InstanceBinding(InstanceBindingName), Label, Labeled(Labeled), LetBinding, LetBinding(LetBindingSignature), LetBinding(LetBindingPattern), LetBinding(LetBindingName), LetBinding(LetBindingError), Module, Name(Name), Proper(Proper), QualifiedName(QualifiedName), RecordLabeled(RecordPun), RecordLabeled(RecordField), Separated, Separated(Separated), Token(TokUnderscore), Where(Where), Wrapped(Wrapped))
+import PureScript.CST.Types (AppSpine(AppType), AppSpine(AppTerm), Binder, Binder(..), Comment(Space), Comment(Line), Declaration, Declaration(..), DoStatement, DoStatement(DoLet), DoStatement(DoDiscard), DoStatement(DoBind), DoStatement(DoError), Expr, Expr(..), Guarded, Guarded(Unconditional), Guarded(Guarded), Ident, Ident(Ident), Instance, Instance(Instance), InstanceBinding, InstanceBinding(InstanceBindingName), Label, Labeled(Labeled), LetBinding, LetBinding(LetBindingSignature), LetBinding(LetBindingPattern), LetBinding(LetBindingName), LetBinding(LetBindingError), LineFeed(LF), Module, Name(Name), Proper(Proper), QualifiedName(QualifiedName), RecordLabeled(RecordPun), RecordLabeled(RecordField), Separated, Separated(Separated), Token(TokUnderscore), Token(TokSymbolName), Token(TokUpperName), Token(TokLowerName), Where(Where), Wrapped(Wrapped))
 import Data.Newtype (unwrap)
-import Data.Array.NonEmpty.Internal (NonEmptyArray)
+import Data.Array.NonEmpty.Internal (NonEmptyArray, NonEmptyArray(NonEmptyArray))
 import Data.Array as Arr
 import Data.String.CodeUnits (contains)
 import Data.String.Pattern (Pattern(..))
 import Control.Category (identity)
 import Data.NonEmpty (singleton)
 import Data.Array.NonEmpty (any, findMap, snoc)
+import Effect.Console (log)
+import Tracer.Record (checkDirectAssignment) as RecordTracer
+import PureScript.CST.Range (tokensOf)
+import PureScript.CST.Print (printSourceToken) as Print
+import PureScript.CST.Range.TokenList as TokenList
+import Data.Foldable (foldMap)
+import Utils (logthis)
 
 type QualifiedIdent = Tuple (Maybe CST.ModuleName) CST.Ident
 type UsageMap = SemigroupMap QualifiedIdent (Set CST.SourceRange)
-
-foreign import logthis :: forall a. a -> Unit
-
-foreign import logTwo :: forall a. String -> a -> Unit
-foreign import addIndent :: Unit -> Unit
-foreign import removeIndent :: Unit -> Unit
 
 {-
 
@@ -97,26 +98,59 @@ rewriteInstanceBinding  ib =
                _ -> unit
     in ib
 
-underscore = BinderWildcard {range : {start : {line : 0, column: 0}, end: {line : 0, column: 1}}, leadingComments: [], trailingComments: [], value : TokUnderscore }
+underscore = BinderWildcard {range : {start : {line : 0, column: 1}, end: {line : 0, column: 2}}, leadingComments: [], trailingComments: [ Space 1 ], value : TokUnderscore }
 
-partialDecodeSourceToken = {range : {start : {line : 0, column: 0}, end: {line : 0, column: 13}}, leadingComments: [], trailingComments: [], value: TokUnderscore}
+partialDecodeSourceToken = {
+                             range: { start: { line: 47, column: 57 }, end: { line: 47, column: 69 } },
+                             leadingComments:  [ Line LF 1 , Space 4 ],
+                             trailingComments: [ Space 1 ],
+                             value: TokLowerName Nothing "partialDecode"
+                           }
 
-partialDecodeIdent = ExprIdent $ QualifiedName {token : partialDecodeSourceToken
+partialDecodeIdent = ExprIdent $ QualifiedName
+                                 { token : {
+                                             range: { start: { line: 44, column: 57 }, end: { line: 44, column: 69 } },
+                                             leadingComments:  [ Space 1 ],
+                                             trailingComments: [ ],
+                                             value: TokLowerName Nothing "hyperDecode"
+                                            }
                                  , module : Nothing
                                  , name : Ident "partialDecode"}
+
+constructorPartialDecode = ExprIdent $ QualifiedName
+                                 { token : {
+                                             range: { start: { line: 44, column: 57 }, end: { line: 44, column: 69 } },
+                                             leadingComments:  [ ],
+                                             trailingComments: [ Space 1 ],
+                                             value: TokLowerName Nothing "constructorPartialDecode"
+                                            }
+                                 , module : Nothing
+                                 , name : Ident "partialDecode"}
+
+--lambdaUnwrap = ExprLambda {symbol : {
+--                                     range: { start: { line: 44, column: 57 }, end: { line: 44, column: 69 } },
+--                                     leadingComments:  [ ],
+--                                     trailingComments: [ Space 1 ],
+--                                     value: TokLowerName Nothing "constructorPartialDecode"
+--                                    }
+--                          , binders : NonEmptyArray [BinderParens (Wrapped {})]}
+
+constructorPartialDecodeRhs = case _ of
+    ExprApp expr arr -> ExprApp constructorPartialDecode arr
+    x -> x
 
 attachPartialDecodeInstance :: forall e. NonEmptyArray (InstanceBinding e) -> NonEmptyArray (InstanceBinding e)
 attachPartialDecodeInstance arr = v
     where
-        v | hasPartialDecode arr = arr
+        v | hasPartialDecode arr = constructorDecode
 --          | hasWrapDecode arr = arr <> wrapDecode
---          | hasConstructorDecode arr = arr <> constructorDecode
+          | hasConstructorDecode arr = constructorDecode
           | true = partialDecode
         partialDecode =
             let
                 val = findMap (case _ of
                         InstanceBindingName {name, binders, guarded} -> if unwrap (unwrap name).name == "hyperDecode"
-                                                        then Just $ InstanceBindingName { name : Name $ (unwrap name) {name = Ident "partialDecode", token = partialDecodeSourceToken}
+                                                        then Just $ InstanceBindingName { name : const (Name $ (unwrap name) {name = Ident "partialDecode", token = partialDecodeSourceToken}) $ logthis (unwrap name).token
                                                                                         , binders : [underscore]
                                                                                         , guarded : case guarded of
                                                                                                         Unconditional st (Where {expr, bindings}) -> Unconditional st (Where {expr : partialDecodeIdent, bindings : Nothing})
@@ -128,7 +162,22 @@ attachPartialDecodeInstance arr = v
             in case val of
                  Nothing -> arr
                  Just x -> snoc arr x
-
+        constructorDecode =
+            let
+                val = findMap (case _ of
+                        InstanceBindingName {name, binders, guarded} ->
+                            if unwrap (unwrap name).name == "hyperDecode"
+                            then Just $ InstanceBindingName { name : const (Name $ (unwrap name) {name = Ident "partialDecode", token = partialDecodeSourceToken}) $ logthis (unwrap name).token
+                                                            , binders : [underscore]
+                                                            , guarded : case guarded of
+                                                                            Unconditional st (Where {expr, bindings}) -> Unconditional st (Where {expr : constructorPartialDecodeRhs expr, bindings: Nothing})
+                                                                            x -> x
+                                                            }
+                            else Nothing
+                        _ -> Nothing) arr
+            in case val of
+                 Nothing -> arr
+                 Just x -> snoc arr x
         hasPartialDecode arr =
             any (case _ of
                     InstanceBindingName {name} -> unwrap (unwrap name).name == "partialDecode"
@@ -207,11 +256,21 @@ printUsage paths =
 
 main :: Effect Unit
 main = launchAff_ do
---    contents <- liftEffect <<< Buffer.toString UTF8 =<< readFile "./src/Test.purs"
---    files' <- getAllScreenFiles "/home/sridatta/code_here/hyper-widget/src/"
-    files' <- getAllScreenFiles "/home/sridatta/code_here/hyper-decoder/test/"
---    let files = Arr.filter (not <<< eq "/home/sridatta/code_here/hyper-widget/src/UI/View/PaymentPage/ViewUtils.purs") files'
-    let files = Arr.filter (eq "/home/sridatta/code_here/hyper-decoder/test/Types.purs") files'
-
-    printUsage files
+--    files' <- getAllScreenFiles "/Users/sridatta.yalla/code_here/hyper-decoder/test/"
+--    let files = Arr.filter (eq "/Users/sridatta.yalla/code_here/hyper-decoder/test/Types.purs") files'
+--    printUsage files
+--    pure unit
+    contents <- liftEffect <<< Buffer.toString UTF8 =<< readFile "./src/input.txt"
+    liftEffect $ checkDirectAssignment "appCheckout" contents
     pure unit
+
+checkDirectAssignment :: String -> String -> Effect Unit
+checkDirectAssignment obj code =
+    case parseExpr code of
+        ParseSucceeded x -> do
+            let afterConversion = RecordTracer.checkDirectAssignment x
+--            log $ foldMap Print.printSourceToken (TokenList.toArray (tokensOf $ afterConversion))
+            pure unit
+        ParseFailed err -> pure $ logthis err
+        ParseSucceededWithErrors _ _ -> log "parse succeded with errors"
+

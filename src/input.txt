@@ -1,0 +1,138 @@
+{ allBanks : banks
+      , merchantPaymentOptions :
+        { unlinkedWallets : instruments.merchantPaymentOptions.unlinkedWallets
+        , linkedWallets : instruments.merchantPaymentOptions.linkedWallets
+        , banks : instruments.merchantPaymentOptions.banks
+        , upiApps : instruments.merchantPaymentOptions.upiApps
+        , payLaterWallets : instruments.merchantPaymentOptions.payLaterWallets
+        , savedPayLaterWallets : instruments.merchantPaymentOptions.savedPayLaterWallets
+        , storedCards : instruments.merchantPaymentOptions.storedCards
+        , savedVpas : instruments.merchantPaymentOptions.savedVpas
+        , separateSectionWallets : instruments.merchantPaymentOptions.separateSectionWallets
+        , inApps : instruments.merchantPaymentOptions.inApps
+        , moreOptions : false
+        , loanMarketplace : instruments.merchantPaymentOptions.loanMarketplace
+        , cardlessEmiWallets : instruments.merchantPaymentOptions.cardlessEmiWallets
+        }
+      , lastSelectedPaymentGroupRef : appState.lastSelectedPaymentGroupRef
+      , lastSelectedPaymentGroup
+      , lastUsedInstrument : instruments.lastUsedInstrument
+      , amount : appCheckout.amount
+      , separateSectionWallets : instruments.separateSectionWallets
+      , appUsed: appUsed
+      , cardBinOffers
+      , cardTypes
+      , selectedDisabledInstrumentsRef : appState.selectedDisabledInstrumentsRef
+      , disabledInstruments
+      , flowConfig : appState.flowConfig
+      , defOption : appState.defaultOption
+      , defOptionType : appState.defaultOptionType
+      , isFirstScreen : appState.paymentPageState.isFirstScreen
+      , isOfferSection : appState.paymentPageState.isOfferSection
+      , isPayLater : appState.walletState.usePayLater
+      , isUPIEnabled
+      , paymentSourceType : appState.paymentSource.type
+      , mandateType
+      , merchantOffer : appState.merchantOffer
+      , offers
+      , offers_ : appState.offersState.offers_
+      , coupons_ : appState.offersState.coupons_
+      , outages : appState.outages
+      , popularBanks : instruments.popularBanks
+      , savedBanks : instruments.savedBanks
+      , savedCards : instruments.storedCards
+      , savedNbs : storedNbs
+      , savedVpas : instruments.savedVpas
+      , savedWallets : instruments.linkedWallets
+      , showQuickPay : appState.paymentPageState.showQuickPay
+      , unlinkedWallets : instruments.unlinkedWallets
+      , loanMarketplace : loanMarketplace
+      , sdkWallets : wallets.sdkWallets
+      , unLinkedPODWallets : instruments.unLinkedPODWallets
+      , storedPODWallets : instruments.storedPODWallets
+      , upiApps : instruments.upiApps
+      , allUpiApps : upiApps
+      , inApps : instruments.inApps
+      , vanMethods : instruments.vanMethods
+      , screenName : appState.paymentPageState.screenName
+      , lastUsed
+      , mandateStartDate : appCheckout.mandate_start_date
+      , mandateEndDate : appCheckout.mandate_end_date
+      , mandateFrequency : appCheckout.mandate_frequency
+      , mandateMaxAmount : appCheckout.mandate_max_amount
+      , savedFoodCards : instruments.foodcards
+      , merchantOptionSelected : appState.paymentPageState.merchantOptionSelected
+      , eligibilityResp : eligibility
+      , payLaterWallets : instruments.payLaterWallets
+      , savedPayLaterWallets : instruments.savedPayLaterWallets
+      , isPrerender : false
+      , paymentSourceResp : paymentSourceData
+      , sessionFiber : appState.sessionFiber
+      , triggerPaymentFiber
+      , currency : mapToCurrency appCheckout.currency
+      , orderDetails
+      , paymentFailed : appState.paymentPageState.paymentFailed
+      , amazonSDKSupport : shouldNotHideAmazonPay
+      , isDeviceReadyState : sdkStatus
+      , creditBillingEnabled : appCheckout.credit_billing
+      , checkoutPopupEnabled
+      --, currentCardMandate
+      , piFromNextScreen : appState.paymentPageState.piFromNextScreen
+      , swypeAllowedFor
+      , filters :
+          { cardFilterList : configCards
+          , upiAppsFilterList : configUPIInstruments.appsFilterList
+          , vpaFilterList : configUPIInstruments.vpaFilterList
+          }
+      , emiPlansResp : appState.emiPlansResp
+      , emiWallets : instruments.cardlessEmiWallets
+      , isError : appState.isError
+      , viesMaxAmount : appState.paymentPageState.viesMaxAmount
+      , offerLockingPayload : appState.offersState.offerLockingPayload
+      , paymentGroupWithOffers : appState.offersState.paymentGroupWithOffers
+      , deviceType: appState.deviceType
+      , integrationType: appState.integrationType
+      , rewards : rewards
+      , isValidVpa : appState.isValidVpa
+      , errorMessagevpa :appState.errorMessagevpa
+      , vpa : appState.vpa
+      , returnResponse : txnRef.returnResponse
+      , lazyLoadPayload
+      , apiCallFlagsData
+      , isForFoodCards: appState.paymentPageState.isForFoodCards
+      , isGuestUser: _isGuestUser
+      , isOfferAppliedInOrderDetails: isOfferPreApplied (MerchantOffer mOffer)
+      , customerName: appState.customerName
+      , splitPaymentDetails
+      , selectedBankAccount : selectedBankAccount
+      , giftCardIssuers
+      , maxGiftCardsLimit : gcMaxLimit
+      --, debounce
+      , screen : appState.screen
+      , retryScreenOptions : retryInstruments.retryInstruments
+      , navigationStack : appState.navigationStack
+      , mandateFeature : case mandateType of
+                              Optional -> Just false
+                              Required -> Just true
+                              _ -> Nothing
+      , selectedGateway : selectedGatewayData.selectedGateway
+      , selectedBankCode : appState.previouslySelectedBankCode
+      , listItemForNB
+      , ppConfigRefAccessors : appState.ppConfigRefAccessors
+      , ppConfigs
+      , cardApiRef
+      , vpaApiRef : appState.upiState.vpaApiRef
+      , vpaInstrument
+      , merchantPaymentGroups
+      , sectionName : appState.paymentPageState.sectionName
+      , txnRequest : txnRef.previousTxnData
+      , txnResponse : txnRef.previousTxnResponse
+      , isTestEnv
+      , microAppsVersion
+      , gatewayPaymentOptions : appState.gatewayPaymentOptions
+      , cachedSessionTokenResp
+      , showInAppWindow : appState.showInAppWindow
+      , productSummary : appCheckout.productSummary
+      , rewardState
+      , doesDeviceSupportNFC : appState.doesDeviceSupportNFC
+      }
