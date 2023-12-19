@@ -26,12 +26,13 @@ import Control.Category (identity)
 import Data.NonEmpty (singleton)
 import Data.Array.NonEmpty (any, findMap, snoc)
 import Effect.Console (log)
-import Tracer.Record (checkDirectAssignment) as RecordTracer
+import Tracer.Record (fetchDirectAssignment) as RecordTracer
 import PureScript.CST.Range (tokensOf)
 import PureScript.CST.Print (printSourceToken) as Print
 import PureScript.CST.Range.TokenList as TokenList
 import Data.Foldable (foldMap)
 import Utils (logthis)
+import Tracer.Record (removeAssignments)
 
 type QualifiedIdent = Tuple (Maybe CST.ModuleName) CST.Ident
 type UsageMap = SemigroupMap QualifiedIdent (Set CST.SourceRange)
@@ -268,8 +269,9 @@ checkDirectAssignment :: String -> String -> Effect Unit
 checkDirectAssignment obj code =
     case parseExpr code of
         ParseSucceeded x -> do
-            let afterConversion = RecordTracer.checkDirectAssignment x
---            log $ foldMap Print.printSourceToken (TokenList.toArray (tokensOf $ afterConversion))
+            let keyVals = RecordTracer.fetchDirectAssignment x "appCheckout"
+                keys = _.a <$> keyVals
+            log $ foldMap Print.printSourceToken $ TokenList.toArray (tokensOf $ removeAssignments x keys)
             pure unit
         ParseFailed err -> pure $ logthis err
         ParseSucceededWithErrors _ _ -> log "parse succeded with errors"

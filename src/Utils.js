@@ -19,3 +19,8 @@ export function addIndent(){
 export function removeIndent(){
     indent = indent.substring(0, indent.length - 2)
 }
+
+export function join(x){
+    return (arr)=>
+        arr.join(x);
+}
